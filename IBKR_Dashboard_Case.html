@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBKR — Структурный разрыв доходности FY2024</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --panel: #FAFAFA;
+    --panel-2: #F2F2F2;
+    --line: #E3E3E3;
+    --text: #161616;
+    --text-dim: #6B6B6B;
+    --text-faint: #A0A0A0;
+    --ink: #000000;
+    --ink-soft: #404040;
+    --up: #1A1A1A;
+    --down: #8A8A8A;
+    --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    --sans: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  a{color:var(--ink);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 100px;}
+
+  /* ---------- Sticky nav ---------- */
+  .topnav{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line); padding:14px 24px; display:flex; justify-content:space-between; align-items:center;
+  }
+  .topnav .brand{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:0.5px; color:var(--text);}
+  .topnav .brand span{color:var(--text-faint); font-weight:400;}
+  .topnav nav{display:flex; gap:22px;}
+  .topnav nav a{font-size:13px; color:var(--text-dim); text-decoration:none; font-weight:500; transition:color .15s;}
+  .topnav nav a:hover{color:var(--ink);}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:56px 0 40px; border-bottom:1px solid var(--line);}
+  .hero-tag{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; font-weight:500;
+    letter-spacing:1px; color:var(--text-dim); background:var(--panel); border:1px solid var(--line);
+    padding:5px 12px; border-radius:20px; margin-bottom:20px;
+  }
+  .hero-tag .dot{width:6px; height:6px; border-radius:50%; background:var(--ink); display:inline-block;}
+  .hero h1{
+    font-size:42px; line-height:1.12; font-weight:800; letter-spacing:-0.02em; margin:0 0 16px; max-width:780px;
+  }
+  .hero h1 em{font-style:normal; color:var(--text-faint);}
+  .hero p{font-size:16px; color:var(--text-dim); max-width:620px; line-height:1.55; margin:0 0 28px;}
+  .hero-meta{display:flex; gap:28px; flex-wrap:wrap; font-size:13px; color:var(--text-dim);}
+  .hero-meta b{color:var(--text); font-weight:600;}
+
+  /* ---------- Section label ---------- */
+  .section{padding:48px 0; border-bottom:1px solid var(--line);}
+  .section:last-child{border-bottom:none;}
+  .eyebrow{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:2px; text-transform:uppercase; color:var(--text-faint);
+    margin-bottom:10px; font-weight:600;
+  }
+  .section h2{font-size:25px; font-weight:700; letter-spacing:-0.01em; margin:0 0 8px; max-width:680px;}
+  .section .sub{font-size:14.5px; color:var(--text-dim); max-width:620px; line-height:1.5; margin-bottom:28px;}
+
+  /* ---------- KPI grid ---------- */
+  .kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .kpi{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px 20px 18px;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .kpi:hover{border-color:#cfcfcf; box-shadow:0 4px 16px rgba(0,0,0,0.04);}
+  .kpi.feature{background:var(--ink); border-color:var(--ink);}
+  .kpi-label{font-size:12.5px; color:var(--text-dim); margin-bottom:12px; min-height:34px; line-height:1.35; font-weight:500;}
+  .kpi.feature .kpi-label{color:#999;}
+  .kpi-value{font-family:var(--mono); font-size:27px; font-weight:600; letter-spacing:-0.01em; color:var(--text);}
+  .kpi.feature .kpi-value{color:#fff;}
+  .kpi-delta{font-family:var(--mono); font-size:12px; margin-top:10px; color:var(--text-faint); display:flex; align-items:center; gap:5px;}
+  .kpi.feature .kpi-delta{color:#888;}
+  .kpi-delta .up{color:var(--up); font-weight:600;}
+  .kpi.feature .kpi-delta .up{color:#fff;}
+  .arrow-up::before{content:"↑ "; }
+
+  /* ---------- Two column ---------- */
+  .grid-2{display:grid; grid-template-columns:1.15fr 1fr; gap:18px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px;}
+  .card h3{font-size:15px; font-weight:600; margin:0 0 4px;}
+  .card .card-sub{font-size:12.5px; color:var(--text-faint); margin-bottom:20px;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;}
+  .tab{
+    font-family:var(--mono); font-size:12px; padding:7px 14px; border-radius:7px; font-weight:500;
+    background:#fff; border:1px solid var(--line); color:var(--text-dim); cursor:pointer; transition:all .15s;
+  }
+  .tab:hover{border-color:#bbb; color:var(--text);}
+  .tab.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+
+  /* ---------- Bars ---------- */
+  .bars{display:flex; flex-direction:column; gap:16px;}
+  .bar-row{display:grid; grid-template-columns:130px 1fr 64px; align-items:center; gap:12px;}
+  .bar-cat{font-size:12px; color:var(--text-dim); font-weight:500;}
+  .bar-cat small{display:block; font-size:10.5px; color:var(--text-faint); font-weight:400; margin-top:1px;}
+  .bar-track{position:relative; height:20px; background:var(--panel-2); border-radius:4px; overflow:hidden;}
+  .bar-fill{position:absolute; left:0; top:0; height:100%; border-radius:4px; transition:width .7s cubic-bezier(.22,1,.36,1);}
+  .bar-fill.fy23{background:#C7C7C7;}
+  .bar-fill.fy24{background:var(--ink);}
+  .bar-val{font-family:var(--mono); font-size:12px; text-align:right; color:var(--text-dim); font-weight:500;}
+
+  .legend-row{display:flex; gap:20px; margin-top:18px; font-size:12px; color:var(--text-faint); font-weight:500;}
+  .legend-row span{display:inline-flex; align-items:center; gap:6px;}
+  .legend-dot{width:9px; height:9px; border-radius:2px; display:inline-block;}
+
+  /* ---------- Ownership donut ---------- */
+  .donut-wrap{display:flex; align-items:center; gap:28px; flex-wrap:wrap;}
+  .donut-legend{flex:1; min-width:200px;}
+  .donut-row{display:flex; justify-content:space-between; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--line);}
+  .donut-row:last-child{border-bottom:none;}
+  .donut-row .name{font-size:13.5px; font-weight:500; color:var(--text);}
+  .donut-row .pct{font-family:var(--mono); font-size:16px; font-weight:600;}
+  .donut-row .trend{font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-left:8px;}
+
+  /* ---------- Bridge (signature element) ---------- */
+  .bridge-section{
+    background:var(--ink); border-radius:16px; padding:44px 36px; margin-top:8px;
+    position:relative; overflow:hidden;
+  }
+  .bridge-section::before{
+    content:''; position:absolute; top:-40%; right:-10%; width:60%; height:180%;
+    background:radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%); pointer-events:none;
+  }
+  .bridge-head{margin-bottom:32px; position:relative;}
+  .bridge-head .eyebrow{color:#888;}
+  .bridge-head h2{color:#fff; margin-bottom:10px;}
+  .bridge-head p{color:#aaa; font-size:14px; max-width:560px; line-height:1.55; margin:0;}
+
+  .bridge{display:flex; align-items:stretch; gap:0; position:relative; flex-wrap:wrap;}
+  .bridge-col{flex:1; min-width:160px; display:flex; flex-direction:column; position:relative; padding:4px;}
+  .bridge-card{
+    background:#1c1c1c; border:1px solid #333; border-radius:12px; padding:22px 18px; height:100%;
+    display:flex; flex-direction:column; justify-content:space-between; transition:transform .2s;
+  }
+  .bridge-card.final{background:#fff; border-color:#fff;}
+  .bridge-card:hover{transform:translateY(-2px);}
+  .bridge-val{font-family:var(--mono); font-size:30px; font-weight:700; color:#fff; letter-spacing:-0.02em;}
+  .bridge-card.final .bridge-val{color:#000;}
+  .bridge-label{font-size:12.5px; color:#999; margin-top:14px; line-height:1.4;}
+  .bridge-card.final .bridge-label{color:#555;}
+  .bridge-op{
+    display:flex; align-items:center; justify-content:center; width:36px; color:#666; font-size:22px; font-weight:300;
+    flex:0 0 36px;
+  }
+
+  /* ---------- Scenario (interactive) ---------- */
+  .scenario{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:32px;
+  }
+  .scenario-top{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:26px;}
+  .scenario-top h3{font-size:17px; margin:0 0 6px;}
+  .scenario-top p{font-size:13.5px; color:var(--text-dim); max-width:520px; line-height:1.5; margin:0;}
+
+  .preset-row{display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap;}
+  .preset-btn{
+    font-family:var(--mono); font-size:12px; padding:8px 14px; border-radius:8px; font-weight:500;
+    background:#fff; border:1px solid var(--line); color:var(--text-dim); cursor:pointer; transition:all .15s;
+  }
+  .preset-btn:hover{border-color:#bbb;}
+  .preset-btn.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+
+  .slider-block{margin-bottom:28px;}
+  .slider-readout{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px;}
+  .slider-readout .label{font-family:var(--mono); font-size:11.5px; color:var(--text-faint); letter-spacing:1px; font-weight:600;}
+  .slider-readout .value{font-family:var(--mono); font-size:30px; font-weight:700; color:var(--text);}
+
+  input[type=range]{
+    width:100%; height:5px; border-radius:3px; background:var(--line);
+    outline:none; -webkit-appearance:none; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--ink); border:3px solid #fff; cursor:grab; box-shadow:0 0 0 1px var(--line), 0 2px 6px rgba(0,0,0,0.15);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:20px; height:20px; border-radius:50%; background:var(--ink); border:3px solid #fff; cursor:grab;
+  }
+  .slider-ticks{display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; color:var(--text-faint); margin-top:8px;}
+
+  .scenario-results{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .result-card{background:#fff; border:1px solid var(--line); border-radius:9px; padding:18px;}
+  .result-card .rlabel{font-size:11.5px; color:var(--text-dim); margin-bottom:10px; font-weight:500;}
+  .result-card .rmain{font-family:var(--mono); font-size:21px; font-weight:700; color:var(--text);}
+  .result-card .rsub{font-family:var(--mono); font-size:12px; margin-top:7px; font-weight:500;}
+  .result-card .rsub.pos{color:var(--up);}
+  .result-card .rsub.neg{color:var(--text-dim);}
+
+  /* ---------- Table ---------- */
+  table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-faint); font-weight:600; padding:0 12px 12px; border-bottom:1px solid var(--line);}
+  th.num, td.num{text-align:right; font-family:var(--mono);}
+  td{padding:13px 12px; border-bottom:1px solid var(--line); color:var(--text-dim);}
+  tr:last-child td{border-bottom:none;}
+  td.label-cell{color:var(--text); font-weight:500;}
+  .tag-up{color:var(--up); font-weight:600;}
+  .tag-down{color:var(--text-faint); font-weight:600;}
+
+  /* ---------- Callout ---------- */
+  .callout{
+    border-left:3px solid var(--ink); background:var(--panel-2);
+    padding:18px 20px; border-radius:0 9px 9px 0; font-size:13.5px; color:var(--text-dim); line-height:1.6; margin-top:20px;
+  }
+  .callout b{color:var(--text);}
+
+  footer{
+    margin-top:0; padding:32px 0; border-top:1px solid var(--line);
+    font-family:var(--mono); font-size:11px; color:var(--text-faint); line-height:1.8;
+  }
+
+  @media (max-width:880px){
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+    .scenario-results{grid-template-columns:1fr;}
+    .topnav nav{display:none;}
+    .hero h1{font-size:32px;}
+    .bridge{flex-direction:column;}
+    .bridge-op{transform:rotate(90deg); margin:4px auto;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topnav">
+    <div class="brand">IBKR <span>/ FY2024 структурный анализ</span></div>
+    <nav>
+      <a href="#overview">Обзор</a>
+      <a href="#revenue">Выручка</a>
+      <a href="#bridge">EPS-мост</a>
+      <a href="#scenario">Сценарий</a>
+      <a href="#factors">Факторы</a>
+    </nav>
+  </div>
+
+  <div class="wrap">
+
+    <div class="hero" id="overview">
+      <div class="hero-tag"><span class="dot"></span>NASDAQ: IBKR — годовой аналитический обзор</div>
+      <h1>Структурный разрыв доходности: декомпозиция роста прибыли акционера</h1>
+      <p>Net income available for common stockholders выросла на 25.8% — на 4.6 п.п. быстрее консолидированной прибыли IBG LLC (+21.2%). В обзоре выделена операционная и структурная компонента этого разрыва.</p>
+      <div class="hero-meta">
+        <div>Период: <b>FY2024 vs FY2023</b></div>
+        <div>Источник: <b>10-K FY2024, Earnings Release 4Q2024</b></div>
+        <div>SEC EDGAR · interactivebrokers.com/ir</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="eyebrow">Ключевые показатели</div>
+      <h2>Динамика ключевых показателей, FY2024 vs FY2023</h2>
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-label">Net revenues</div>
+          <div class="kpi-value">$5,185M</div>
+          <div class="kpi-delta">vs $4,340M <span class="up arrow-up">+19.5%</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Income before taxes</div>
+          <div class="kpi-value">$3,695M</div>
+          <div class="kpi-delta">vs $3,069M <span class="up arrow-up">+20.4%</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Net income (вся IBG LLC)</div>
+          <div class="kpi-value">$3,407M</div>
+          <div class="kpi-delta">vs $2,812M <span class="up arrow-up">+21.2%</span></div>
+        </div>
+        <div class="kpi feature">
+          <div class="kpi-label">NI available for common stockholders</div>
+          <div class="kpi-value">$755M</div>
+          <div class="kpi-delta">vs $600M <span class="up arrow-up">+25.8%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="revenue">
+      <div class="eyebrow">Структура выручки и владения</div>
+      <h2>Структура выручки и распределение долей владения</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Net revenues по статьям, $ млн</h3>
+          <div class="card-sub">Динамика по статьям доходов, год к году</div>
+          <div class="tabs" id="revTabs">
+            <div class="tab active" data-key="all">Все статьи</div>
+            <div class="tab" data-key="comm">Commissions</div>
+            <div class="tab" data-key="fees">Other fees</div>
+            <div class="tab" data-key="nii">Net interest income</div>
+          </div>
+          <div class="bars" id="revBars"></div>
+          <div class="legend-row">
+            <span><span class="legend-dot" style="background:#C7C7C7"></span>FY2023</span>
+            <span><span class="legend-dot" style="background:#000"></span>FY2024</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Структура владения IBG LLC</h3>
+          <div class="card-sub">Распределение долей владения IBG LLC</div>
+          <div class="donut-wrap">
+            <svg width="150" height="150" viewBox="0 0 150 150" style="flex-shrink:0;">
+              <circle cx="75" cy="75" r="60" fill="none" stroke="#EAEAEA" stroke-width="22"/>
+              <circle id="donutArc" cx="75" cy="75" r="60" fill="none" stroke="#000" stroke-width="22"
+                stroke-dasharray="97.4 279.9" stroke-dashoffset="0" transform="rotate(-90 75 75)"/>
+              <text x="75" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="22" font-weight="700" fill="#161616">25.8%</text>
+              <text x="75" y="88" text-anchor="middle" font-family="Inter" font-size="9" fill="#A0A0A0">IBG, Inc.</text>
+            </svg>
+            <div class="donut-legend">
+              <div class="donut-row">
+                <span class="name">IBG, Inc. (акционеры)</span>
+                <span><span class="pct">25.8%</span><span class="trend">↑ от 25.4%</span></span>
+              </div>
+              <div class="donut-row">
+                <span class="name">Holdings (NCI)</span>
+                <span><span class="pct">74.2%</span><span class="trend">↓ от 74.6%</span></span>
+              </div>
+            </div>
+          </div>
+          <div class="callout">
+            <b>Доля IBG, Inc. выросла на 0.4 п.п.</b> за счёт выкупа доли у Holdings — повторяемая структурная транзакция, отдельная от операционного результата.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="bridge">
+      <div class="eyebrow">Разложение роста EPS</div>
+      <h2>Декомпозиция роста чистой прибыли на акцию</h2>
+      <div class="bridge-section">
+        <div class="bridge-head">
+          <div class="eyebrow">EPS-мост</div>
+          <h2>Операционная и структурная компоненты прироста</h2>
+          <p>Консолидированная прибыль выросла на 21.2% — это операционная часть. Оставшиеся 4.7 п.п. — рост доли владения и сокращение налогового разрыва NCI.</p>
+        </div>
+        <div class="bridge" id="bridgeViz"></div>
+      </div>
+    </div>
+
+    <div class="section" id="scenario">
+      <div class="eyebrow">Сценарный анализ</div>
+      <h2>Чувствительность прибыли к изменению ставки ФРС</h2>
+      <div class="scenario">
+        <div class="scenario-top">
+          <div>
+            <h3>Доля net interest income в структуре выручки: 60.7%</h3>
+            <p>Модель линейна, основана на чувствительности, раскрытой компанией: -100 б.п. по всем ставкам ≈ -$335M NII.</p>
+          </div>
+        </div>
+
+        <div class="preset-row" id="presets">
+          <div class="preset-btn" data-bps="50">Ставка +50 б.п.</div>
+          <div class="preset-btn" data-bps="0">Без изменений</div>
+          <div class="preset-btn active" data-bps="-100">Снижение -100 б.п.</div>
+          <div class="preset-btn" data-bps="-200">Рецессия -200 б.п.</div>
+        </div>
+
+        <div class="slider-block">
+          <div class="slider-readout">
+            <span class="label">СДВИГ СТАВКИ ФРС</span>
+            <span class="value" id="bpsValue">-100 б.п.</span>
+          </div>
+          <input type="range" id="bpsSlider" min="-300" max="100" step="25" value="-100">
+          <div class="slider-ticks">
+            <span>-300</span><span>-200</span><span>-100</span><span>0</span><span>+100 б.п.</span>
+          </div>
+        </div>
+
+        <div class="scenario-results">
+          <div class="result-card">
+            <div class="rlabel">Net interest income, $ млн</div>
+            <div class="rmain" id="r-nii">2,813</div>
+            <div class="rsub neg" id="r-nii-delta">-335 (-10.6%)</div>
+          </div>
+          <div class="result-card">
+            <div class="rlabel">Net revenues, $ млн</div>
+            <div class="rmain" id="r-rev">4,850</div>
+            <div class="rsub neg" id="r-rev-delta">-335 (-6.5%)</div>
+          </div>
+          <div class="result-card">
+            <div class="rlabel">Income before taxes, $ млн</div>
+            <div class="rmain" id="r-ebt">3,456</div>
+            <div class="rsub neg" id="r-ebt-delta">-239 (-6.5%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="factors">
+      <div class="eyebrow">Факторный анализ</div>
+      <h2>Факторный анализ: объёмный vs ценовой компонент роста</h2>
+      <div class="card">
+        <h3>Разложение операционных метрик по компонентам</h3>
+        <div class="card-sub">Прирост клиентской активности опережает динамику удельной комиссии</div>
+        <table>
+          <tr><th>Показатель</th><th class="num">FY2024</th><th class="num">FY2023</th><th class="num">Δ</th></tr>
+          <tr><td class="label-cell">Total customer DARTs, тыс. (Q4)</td><td class="num">3,118</td><td class="num">1,934</td><td class="num tag-up">+61.2%</td></tr>
+          <tr><td class="label-cell">Commission per cleared order, $</td><td class="num">2.72</td><td class="num">3.19</td><td class="num tag-down">-14.7%</td></tr>
+          <tr><td class="label-cell">Customer accounts, тыс.</td><td class="num">3,337</td><td class="num">2,562</td><td class="num tag-up">+30.3%</td></tr>
+          <tr><td class="label-cell">Customer margin loans, $ млрд</td><td class="num">64.2</td><td class="num">44.3</td><td class="num tag-up">+44.9%</td></tr>
+          <tr><td class="label-cell">Net interest margin (NIM), %</td><td class="num">2.35%</td><td class="num">2.36%</td><td class="num tag-down">-0.01 п.п.</td></tr>
+        </table>
+        <div class="callout">
+          <b>Вывод:</b> рост почти полностью объясняется ростом объёмов (DARTs +61%, accounts +30%, margin loans +45%) при отрицательном ценовом эффекте и неизменном NIM. Это история клиентского роста, а не процентного цикла.
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Источники: Interactive Brokers Group, Inc. 10-K FY2024 (SEC EDGAR, filed 2025-02-27) · Earnings Release 4Q2024 · Подготовлено как демонстрационный аналитический кейс для портфолио. Не является инвестиционной рекомендацией.
+    </footer>
+
+  </div>
+
+<script>
+// ============ DATA ============
+const revData = {
+  comm:  { fy24: 1697, fy23: 1360, label: "Commissions" },
+  fees:  { fy24: 280,  fy23: 197,  label: "Other fees and services" },
+  other: { fy24: 60,   fy23: -11,  label: "Other income" },
+  nii:   { fy24: 3148, fy23: 2794, label: "Net interest income" },
+};
+
+function fmt(n){ return n.toLocaleString('en-US'); }
+
+function renderBars(filterKey){
+  const container = document.getElementById('revBars');
+  container.innerHTML = '';
+  const keys = filterKey === 'all' ? ['comm','fees','other','nii'] :
+               filterKey === 'comm' ? ['comm'] :
+               filterKey === 'fees' ? ['fees'] : ['nii'];
+  const maxVal = Math.max(...keys.map(k => Math.max(revData[k].fy24, revData[k].fy23)));
+
+  keys.forEach(k => {
+    const d = revData[k];
+    const row23 = document.createElement('div');
+    row23.className = 'bar-row';
+    const pct23 = Math.max(0, (d.fy23 / maxVal) * 100);
+    row23.innerHTML = `
+      <div class="bar-cat">${d.label}<small>FY2023</small></div>
+      <div class="bar-track"><div class="bar-fill fy23" style="width:${pct23}%"></div></div>
+      <div class="bar-val">${fmt(d.fy23)}</div>`;
+    container.appendChild(row23);
+
+    const row24 = document.createElement('div');
+    row24.className = 'bar-row';
+    const pct24 = Math.max(0, (d.fy24 / maxVal) * 100);
+    row24.innerHTML = `
+      <div class="bar-cat">&nbsp;<small>FY2024</small></div>
+      <div class="bar-track"><div class="bar-fill fy24" style="width:${pct24}%"></div></div>
+      <div class="bar-val">${fmt(d.fy24)}</div>`;
+    container.appendChild(row24);
+  });
+}
+renderBars('all');
+
+document.querySelectorAll('#revTabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#revTabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderBars(tab.dataset.key);
+  });
+});
+
+// ============ EPS BRIDGE ============
+function renderBridge(){
+  const container = document.getElementById('bridgeViz');
+  container.innerHTML = '';
+  const items = [
+    { val: '+21.2%', label: 'Рост консолидированной прибыли IBG LLC (операционный)', final: false },
+    { val: '+4.7 п.п.', label: 'Рост доли владения + сокращение налогового разрыва NCI', final: false },
+    { val: '+25.8%', label: 'Итого: рост NI для акционеров IBKR', final: true },
+  ];
+  items.forEach((it, i) => {
+    const col = document.createElement('div');
+    col.className = 'bridge-col';
+    col.innerHTML = `<div class="bridge-card ${it.final ? 'final' : ''}">
+        <div class="bridge-val">${it.val}</div>
+        <div class="bridge-label">${it.label}</div>
+      </div>`;
+    container.appendChild(col);
+    if (i < items.length - 1) {
+      const op = document.createElement('div');
+      op.className = 'bridge-op';
+      op.textContent = '+';
+      container.appendChild(op);
+    }
+  });
+}
+renderBridge();
+
+// ============ SCENARIO SLIDER ============
+const BASE_NII = 3148;
+const BASE_REV = 5185;
+const BASE_EBT = 3695;
+const PRETAX_MARGIN = BASE_EBT / BASE_REV;
+const SENSITIVITY_PER_100BPS = 335;
+
+const slider = document.getElementById('bpsSlider');
+const bpsValue = document.getElementById('bpsValue');
+
+function updateScenario(bps){
+  bpsValue.textContent = (bps > 0 ? '+' : '') + bps + ' б.п.';
+
+  const newNII = BASE_NII + (bps / 100) * SENSITIVITY_PER_100BPS;
+  const newRev = BASE_REV + (newNII - BASE_NII);
+  const newEBT = newRev * PRETAX_MARGIN;
+
+  const niiD = newNII - BASE_NII;
+  const revD = newRev - BASE_REV;
+  const ebtD = newEBT - BASE_EBT;
+
+  document.getElementById('r-nii').textContent = fmt(Math.round(newNII));
+  document.getElementById('r-rev').textContent = fmt(Math.round(newRev));
+  document.getElementById('r-ebt').textContent = fmt(Math.round(newEBT));
+
+  function setDelta(elId, delta, base){
+    const el = document.getElementById(elId);
+    const pct = (delta / base * 100).toFixed(1);
+    const sign = delta >= 0 ? '+' : '';
+    el.textContent = `${sign}${fmt(Math.round(delta))} (${sign}${pct}%)`;
+    el.className = 'rsub ' + (delta >= 0 ? 'pos' : 'neg');
+  }
+  setDelta('r-nii-delta', niiD, BASE_NII);
+  setDelta('r-rev-delta', revD, BASE_REV);
+  setDelta('r-ebt-delta', ebtD, BASE_EBT);
+}
+
+slider.addEventListener('input', () => {
+  updateScenario(parseInt(slider.value, 10));
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+});
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const bps = parseInt(btn.dataset.bps, 10);
+    slider.value = bps;
+    updateScenario(bps);
+  });
+});
+
+updateScenario(-100);
+
+// Smooth scroll for nav
+document.querySelectorAll('.topnav nav a').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
